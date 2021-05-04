@@ -1,8 +1,14 @@
 
     
+helpers do
+  def current_user
+    User.find_by(id: session[:user_id])
+  end
+end
+
 get '/' do
-    @finstagram_posts = FinstagramPost.order(created_at: :desc)
-    erb(:index)
+  @finstagram_posts = FinstagramPost.order(created_at: :desc)
+  erb(:index)
 end
 
 get '/signup' do     # if a user navigates to the path "/signup",
@@ -27,3 +33,29 @@ post '/signup' do
   end
 
 end
+
+get '/login' do    # when a GET request comes into /login
+  erb(:login)      # render app/views/login.erb
+end
+
+post '/login' do
+  username = params[:username]
+  password = params[:password]
+
+  @user = User.find_by(username: username)
+
+  if @user && @user.password == password
+    session[:user_id] = @user.id
+    "Success! User with id #{session[:user_id]} is logged in!"
+  else
+    @error_message = "Login failed."
+    erb(:login)
+  end
+end
+
+get '/logout' do
+  session[:user_id] = nil
+  "Logout successful!"
+end
+
+
